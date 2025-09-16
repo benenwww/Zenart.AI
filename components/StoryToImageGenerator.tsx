@@ -5,11 +5,15 @@ import { LoadingSpinner } from './LoadingSpinner';
 
 interface StoryToImageGeneratorProps {
     hasWallpaper: boolean;
-    removeWatermark: boolean;
-    setRemoveWatermark: (value: boolean) => void;
+    userCredits: number;
+    onCreditChange: (newCredits: number) => void;
 }
 
-export const StoryToImageGenerator: React.FC<StoryToImageGeneratorProps> = ({ hasWallpaper, removeWatermark, setRemoveWatermark }) => {
+const CREDIT_COSTS = {
+  image: 2,
+};
+
+export const StoryToImageGenerator: React.FC<StoryToImageGeneratorProps> = ({ hasWallpaper, userCredits, onCreditChange }) => {
     const [storyText, setStoryText] = useState<string>('');
     const [aspectRatio, setAspectRatio] = useState<string>('16:9');
     const [artStyle, setArtStyle] = useState<string>('automatic');
@@ -22,6 +26,12 @@ export const StoryToImageGenerator: React.FC<StoryToImageGeneratorProps> = ({ ha
             setError('Story text cannot be empty.');
             return;
         }
+        
+        if (userCredits < CREDIT_COSTS.image) {
+          setError(`Not enough credits. Image generation costs ${CREDIT_COSTS.image} credits. Credits reset daily.`);
+          return;
+        }
+
         setError(null);
         setFinalResult(null);
         setIsGenerating(true);
@@ -44,15 +54,16 @@ export const StoryToImageGenerator: React.FC<StoryToImageGeneratorProps> = ({ ha
         }
 
         try {
-            const imageB64 = await generateImageFromPrompt(finalPrompt, aspectRatio, removeWatermark);
+            const imageB64 = await generateImageFromPrompt(finalPrompt, aspectRatio);
             setFinalResult({ url: `data:image/jpeg;base64,${imageB64}`, type: 'image' });
+            onCreditChange(userCredits - CREDIT_COSTS.image);
         } catch (e) {
             console.error(e);
             setError(e instanceof Error ? e.message : 'Failed to generate image. Please check the console.');
         } finally {
             setIsGenerating(false);
         }
-    }, [storyText, aspectRatio, artStyle, removeWatermark]);
+    }, [storyText, aspectRatio, artStyle, userCredits, onCreditChange]);
     
     // A simple fade-in animation
     const animationStyle = {
@@ -98,14 +109,20 @@ export const StoryToImageGenerator: React.FC<StoryToImageGeneratorProps> = ({ ha
                                     <span className="bg-green-400 text-slate-900 rounded-full h-8 w-8 text-lg flex items-center justify-center mr-3">1</span>
                                     Your Story
                                 </h3>
-                                <textarea
-                                    value={storyText}
-                                    onChange={(e) => setStoryText(e.target.value)}
-                                    placeholder="Paste your story or a descriptive scene here..."
-                                    className="w-full h-48 p-3 text-slate-300 bg-slate-900/70 border border-slate-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors duration-300 resize-none"
-                                    disabled={isGenerating}
-                                    aria-label="Story input"
-                                />
+                                <div className="relative">
+                                    <textarea
+                                        value={storyText}
+                                        onChange={(e) => setStoryText(e.target.value)}
+                                        placeholder="Paste your story or a descriptive scene here..."
+                                        className="w-full h-48 p-3 pb-6 text-slate-300 bg-slate-900/70 border border-slate-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors duration-300 resize-none"
+                                        disabled={isGenerating}
+                                        aria-label="Story input"
+                                        maxLength={7000}
+                                    />
+                                    <div className="absolute bottom-2 right-2 text-xs text-slate-500 pointer-events-none">
+                                        {storyText.length} / 7000
+                                    </div>
+                                </div>
                             </div>
                             <div>
                                 <h3 className="text-2xl font-semibold mb-4 text-green-400 flex items-center">
@@ -154,22 +171,6 @@ export const StoryToImageGenerator: React.FC<StoryToImageGeneratorProps> = ({ ha
                                             <option value="none">Use Prompt Only</option>
                                         </select>
                                     </div>
-                                    <label htmlFor="story-remove-watermark-toggle" className={`flex items-center justify-between py-1 ${isGenerating ? 'cursor-not-allowed' : 'cursor-pointer'}`}>
-                                        <span className={`text-sm font-medium ${isGenerating ? 'text-slate-500' : 'text-slate-400'}`}>
-                                            Remove Watermark
-                                        </span>
-                                        <div className="relative inline-flex items-center">
-                                            <input
-                                            type="checkbox"
-                                            id="story-remove-watermark-toggle"
-                                            className="sr-only peer"
-                                            checked={removeWatermark}
-                                            onChange={(e) => setRemoveWatermark(e.target.checked)}
-                                            disabled={isGenerating}
-                                            />
-                                            <div className="w-11 h-6 bg-slate-700 rounded-full peer peer-focus:ring-2 peer-focus:ring-green-500 peer-focus:ring-offset-2 peer-focus:ring-offset-slate-900 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-600"></div>
-                                        </div>
-                                    </label>
                                 </div>
                             </div>
                             <div className="flex-grow flex items-end">

@@ -32,8 +32,6 @@ interface BatchProcessorProps {
   setArtStyle: (style: string) => void;
   enhanceDetail: boolean;
   setEnhanceDetail: (value: boolean) => void;
-  removeWatermark: boolean;
-  setRemoveWatermark: (value: boolean) => void;
   hasWallpaper: boolean;
 }
 
@@ -179,7 +177,7 @@ const BatchUploader: React.FC<{ onFilesSelect: (files: File[]) => void; currentF
 
 export const BatchProcessor: React.FC<BatchProcessorProps> = ({
     items, onFilesSelect, onGeneratePrompt, onGenerateImage, onUpdatePrompt, onRemoveItem, onClearBatch,
-    aspectRatio, setAspectRatio, artStyle, setArtStyle, enhanceDetail, setEnhanceDetail, removeWatermark, setRemoveWatermark, hasWallpaper
+    aspectRatio, setAspectRatio, artStyle, setArtStyle, enhanceDetail, setEnhanceDetail, hasWallpaper
 }) => {
     const panelClasses = hasWallpaper
     ? "bg-slate-900/60 backdrop-blur-lg border border-slate-500/50 rounded-xl p-4 shadow-lg transition-all duration-500"
@@ -189,7 +187,7 @@ export const BatchProcessor: React.FC<BatchProcessorProps> = ({
         <section className="animate-fade-in space-y-6">
             <div className={panelClasses}>
                 <h2 className="text-2xl font-semibold mb-4 text-purple-400">Global Settings</h2>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 items-end">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
                     <div>
                         <label htmlFor="batch-aspect-ratio" className="block text-sm font-medium text-slate-400 mb-1">Aspect Ratio</label>
                         <select id="batch-aspect-ratio" value={aspectRatio} onChange={(e) => setAspectRatio(e.target.value)} className="w-full bg-slate-900/70 border border-slate-600 text-slate-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 p-2.5">
@@ -217,13 +215,6 @@ export const BatchProcessor: React.FC<BatchProcessorProps> = ({
                         <span className="text-sm font-medium text-slate-400 mr-3">Enhanced Detail</span>
                         <div className="relative inline-flex items-center">
                             <input type="checkbox" id="batch-enhance-detail" className="sr-only peer" checked={enhanceDetail} onChange={(e) => setEnhanceDetail(e.target.checked)}/>
-                            <div className="w-11 h-6 bg-slate-700 rounded-full peer peer-focus:ring-2 peer-focus:ring-purple-500 peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-purple-600"></div>
-                        </div>
-                    </label>
-                    <label htmlFor="batch-remove-watermark" className="flex items-center justify-center cursor-pointer h-full pb-1">
-                        <span className="text-sm font-medium text-slate-400 mr-3">Remove Watermark</span>
-                        <div className="relative inline-flex items-center">
-                            <input type="checkbox" id="batch-remove-watermark" className="sr-only peer" checked={removeWatermark} onChange={(e) => setRemoveWatermark(e.target.checked)}/>
                             <div className="w-11 h-6 bg-slate-700 rounded-full peer peer-focus:ring-2 peer-focus:ring-purple-500 peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-purple-600"></div>
                         </div>
                     </label>

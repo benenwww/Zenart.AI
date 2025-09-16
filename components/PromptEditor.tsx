@@ -20,8 +20,6 @@ interface PromptEditorProps {
   promptGenerationCancelled: boolean;
   createVideo: boolean;
   setCreateVideo: (value: boolean) => void;
-  removeWatermark: boolean;
-  setRemoveWatermark: (value: boolean) => void;
 }
 
 export const PromptEditor: React.FC<PromptEditorProps> = ({ 
@@ -42,8 +40,6 @@ export const PromptEditor: React.FC<PromptEditorProps> = ({
   promptGenerationCancelled,
   createVideo,
   setCreateVideo,
-  removeWatermark,
-  setRemoveWatermark
 }) => {
   const isControlDisabled = !isImageUploaded || isLoadingPrompt || isGenerating;
   const showRetry = isImageUploaded && promptGenerationCancelled && !prompt && !isLoadingPrompt;
@@ -190,23 +186,6 @@ export const PromptEditor: React.FC<PromptEditorProps> = ({
               className="sr-only peer"
               checked={enhanceDetail}
               onChange={(e) => setEnhanceDetail(e.target.checked)}
-              disabled={isControlDisabled}
-            />
-            <div className="w-11 h-6 bg-slate-700 rounded-full peer peer-focus:ring-2 peer-focus:ring-purple-500 peer-focus:ring-offset-2 peer-focus:ring-offset-slate-800 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-purple-600"></div>
-          </div>
-        </label>
-        <label htmlFor="remove-watermark-toggle" className={`flex items-center justify-between py-1 ${isControlDisabled ? 'cursor-not-allowed' : 'cursor-pointer'}`}>
-          <span className={`text-sm font-medium ${isControlDisabled ? 'text-slate-500' : 'text-slate-400'}`}>
-            Remove Watermark
-            <p className="text-xs text-slate-500 font-normal">Generates media without the @Zenart AI watermark.</p>
-          </span>
-          <div className="relative inline-flex items-center">
-            <input
-              type="checkbox"
-              id="remove-watermark-toggle"
-              className="sr-only peer"
-              checked={removeWatermark}
-              onChange={(e) => setRemoveWatermark(e.target.checked)}
               disabled={isControlDisabled}
             />
             <div className="w-11 h-6 bg-slate-700 rounded-full peer peer-focus:ring-2 peer-focus:ring-purple-500 peer-focus:ring-offset-2 peer-focus:ring-offset-slate-800 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-purple-600"></div>

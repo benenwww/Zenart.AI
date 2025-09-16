@@ -163,7 +163,7 @@ const addWatermarkToImage = async (base64ImageData: string): Promise<string> => 
     }
 };
 
-export const generateImageFromPrompt = async (prompt: string, aspectRatio: string, removeWatermark: boolean): Promise<string> => {
+export const generateImageFromPrompt = async (prompt: string, aspectRatio: string): Promise<string> => {
     try {
         // Step 1: Generate image without watermark
         let response = await ai.models.generateImages({
@@ -205,10 +205,6 @@ export const generateImageFromPrompt = async (prompt: string, aspectRatio: strin
             throw new Error("The API returned a response, but it did not contain valid image data.");
         }
 
-        if (removeWatermark) {
-            return initialImageBytes;
-        }
-
         // Step 2: Add watermark to the generated image
         const watermarkedImageBytes = await addWatermarkToImage(initialImageBytes);
         return watermarkedImageBytes;
@@ -229,7 +225,7 @@ export const generateImageFromPrompt = async (prompt: string, aspectRatio: strin
     }
 };
 
-export const enhanceImageQuality = async (imageFile: File, quality: '4k' | '8k', aspectRatio: string, removeWatermark: boolean): Promise<string> => {
+export const enhanceImageQuality = async (imageFile: File, quality: '4k' | '8k', aspectRatio: string): Promise<string> => {
     try {
         const imagePart = await fileToGenerativePart(imageFile);
         const resolution = quality === '4k' 
@@ -237,9 +233,7 @@ export const enhanceImageQuality = async (imageFile: File, quality: '4k' | '8k',
             : 'an ultra-detailed 8K resolution (7680x4320 pixels)';
 
         let promptText = `Take this image and upscale it to ${resolution}. IMPORTANT: The final output image MUST have an aspect ratio of exactly ${aspectRatio}. Intelligently crop, extend the scene, or add pillar/letterboxing if necessary to achieve this aspect ratio without distorting the main subject. After adjusting the aspect ratio, sharpen details, remove any compression artifacts, noise, or pixelation. Improve the overall lighting and color balance to make it look like a high-quality photograph or digital painting. Return only the improved image without any accompanying text.`;
-        if (!removeWatermark) {
-            promptText += WATERMARK_INSTRUCTION;
-        }
+        promptText += WATERMARK_INSTRUCTION;
         
         const textPart = { text: promptText };
 
@@ -299,14 +293,12 @@ export const enhanceImageQuality = async (imageFile: File, quality: '4k' | '8k',
     }
 };
 
-export const fixImageLighting = async (imageFile: File, aspectRatio: string, removeWatermark: boolean): Promise<string> => {
+export const fixImageLighting = async (imageFile: File, aspectRatio: string): Promise<string> => {
     try {
         const imagePart = await fileToGenerativePart(imageFile);
         
         let promptText = `Analyze the provided image for lighting problems. Specifically, identify and correct any harsh glare, overexposed areas, or lens flares. Your main task is to reduce the intensity of blown-out highlights, recover lost details within these bright areas, and balance the overall exposure for a more natural and visually pleasing result. Preserve the original details, colors, and composition of the rest of the image. The final output image MUST have an aspect ratio of exactly ${aspectRatio}. Return only the corrected image.`;
-        if (!removeWatermark) {
-            promptText += WATERMARK_INSTRUCTION;
-        }
+        promptText += WATERMARK_INSTRUCTION;
 
         const textPart = { text: promptText };
 
@@ -360,14 +352,12 @@ export const fixImageLighting = async (imageFile: File, aspectRatio: string, rem
     }
 };
 
-export const clarifyImage = async (imageFile: File, aspectRatio: string, removeWatermark: boolean): Promise<string> => {
+export const clarifyImage = async (imageFile: File, aspectRatio: string): Promise<string> => {
     try {
         const imagePart = await fileToGenerativePart(imageFile);
 
         let promptText = `Analyze the provided image for blurriness, pixelation, and compression artifacts. Your task is to gently sharpen the details, reduce noise, and clarify the main subjects without altering the original composition, colors, or content. The goal is to make a low-quality photo clearer. The final output image MUST have an aspect ratio of exactly ${aspectRatio}. Return only the clarified image.`;
-        if (!removeWatermark) {
-            promptText += WATERMARK_INSTRUCTION;
-        }
+        promptText += WATERMARK_INSTRUCTION;
 
         const textPart = { text: promptText };
 
@@ -422,15 +412,13 @@ export const clarifyImage = async (imageFile: File, aspectRatio: string, removeW
 };
 
 
-export const generateVideoFromImageAndPrompt = async (imageFile: File, prompt: string, aspectRatio: string, removeWatermark: boolean): Promise<string> => {
+export const generateVideoFromImageAndPrompt = async (imageFile: File, prompt: string, aspectRatio: string): Promise<string> => {
     const maxRetries = 3;
     let delay = 2000; // Start with a 2-second delay
     const imageBytes = await fileToBase64(imageFile); // Convert file once outside the loop
 
     let constructedPrompt = `Generate a high-definition, cinematic video based on the following description. The video should be of the highest possible quality. The final video's aspect ratio must be exactly ${aspectRatio}. Description: "${prompt}".`;
-    if (!removeWatermark) {
-        constructedPrompt += WATERMARK_INSTRUCTION;
-    }
+    constructedPrompt += WATERMARK_INSTRUCTION;
 
     let operation;
 
